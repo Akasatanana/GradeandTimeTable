@@ -7,15 +7,39 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6EBB44E528521C7E0065806A /* UserDefalutsSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EBB44E428521C7E0065806A /* UserDefalutsSetting.swift */; };
+		6EC57211282683A9006453E0 /* ClassData+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5720F282683A9006453E0 /* ClassData+CoreDataClass.swift */; };
+		6EC57212282683A9006453E0 /* ClassData+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC57210282683A9006453E0 /* ClassData+CoreDataProperties.swift */; };
+		6EC5721428268CE3006453E0 /* classBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5721328268CE3006453E0 /* classBox.swift */; };
+		6EC5721628268E52006453E0 /* DayIntex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5721528268E52006453E0 /* DayIntex.swift */; };
+		6EC5721828268F23006453E0 /* TimeIntex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5721728268F23006453E0 /* TimeIntex.swift */; };
+		6EC5721A28268F8D006453E0 /* ClassMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5721928268F8D006453E0 /* ClassMatrix.swift */; };
+		6EC5721C2827A421006453E0 /* ClassSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC5721B2827A421006453E0 /* ClassSetting.swift */; };
+		6EC7D977283658C4002C8B9C /* ForWatchCOreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7D976283658C4002C8B9C /* ForWatchCOreData.swift */; };
+		6EC7D97928475335002C8B9C /* EvalItemSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC7D97828475335002C8B9C /* EvalItemSetting.swift */; };
 		6EC9C770282665EF0005CE8D /* TestCoreDataApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9C76F282665EF0005CE8D /* TestCoreDataApp.swift */; };
 		6EC9C772282665EF0005CE8D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9C771282665EF0005CE8D /* ContentView.swift */; };
 		6EC9C774282665F10005CE8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EC9C773282665F10005CE8D /* Assets.xcassets */; };
 		6EC9C777282665F10005CE8D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6EC9C776282665F10005CE8D /* Preview Assets.xcassets */; };
 		6EC9C779282665F10005CE8D /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9C778282665F10005CE8D /* Persistence.swift */; };
 		6EC9C77C282665F10005CE8D /* TestCoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6EC9C77A282665F10005CE8D /* TestCoreData.xcdatamodeld */; };
+		6ECE25A528532E0700564952 /* ShowAllEvaluatedCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE25A428532E0700564952 /* ShowAllEvaluatedCards.swift */; };
+		6ECE25A7285336B700564952 /* MissedTimeSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ECE25A6285336B700564952 /* MissedTimeSetting.swift */; };
+		6EDDB1F728526689003EBBFF /* EvaluatedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDDB1F628526689003EBBFF /* EvaluatedCard.swift */; };
+		6EF12A5A28267386000F31AC /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF12A5928267386000F31AC /* Data.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6EBB44E428521C7E0065806A /* UserDefalutsSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefalutsSetting.swift; sourceTree = "<group>"; };
+		6EC5720F282683A9006453E0 /* ClassData+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClassData+CoreDataClass.swift"; sourceTree = "<group>"; };
+		6EC57210282683A9006453E0 /* ClassData+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClassData+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		6EC5721328268CE3006453E0 /* classBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = classBox.swift; sourceTree = "<group>"; };
+		6EC5721528268E52006453E0 /* DayIntex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayIntex.swift; sourceTree = "<group>"; };
+		6EC5721728268F23006453E0 /* TimeIntex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntex.swift; sourceTree = "<group>"; };
+		6EC5721928268F8D006453E0 /* ClassMatrix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassMatrix.swift; sourceTree = "<group>"; };
+		6EC5721B2827A421006453E0 /* ClassSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassSetting.swift; sourceTree = "<group>"; };
+		6EC7D976283658C4002C8B9C /* ForWatchCOreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForWatchCOreData.swift; sourceTree = "<group>"; };
+		6EC7D97828475335002C8B9C /* EvalItemSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalItemSetting.swift; sourceTree = "<group>"; };
 		6EC9C76C282665EF0005CE8D /* TestCoreData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestCoreData.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EC9C76F282665EF0005CE8D /* TestCoreDataApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCoreDataApp.swift; sourceTree = "<group>"; };
 		6EC9C771282665EF0005CE8D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -23,6 +47,10 @@
 		6EC9C776282665F10005CE8D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		6EC9C778282665F10005CE8D /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		6EC9C77B282665F10005CE8D /* TestCoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TestCoreData.xcdatamodel; sourceTree = "<group>"; };
+		6ECE25A428532E0700564952 /* ShowAllEvaluatedCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAllEvaluatedCards.swift; sourceTree = "<group>"; };
+		6ECE25A6285336B700564952 /* MissedTimeSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissedTimeSetting.swift; sourceTree = "<group>"; };
+		6EDDB1F628526689003EBBFF /* EvaluatedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluatedCard.swift; sourceTree = "<group>"; };
+		6EF12A5928267386000F31AC /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,8 +83,22 @@
 		6EC9C76E282665EF0005CE8D /* TestCoreData */ = {
 			isa = PBXGroup;
 			children = (
+				6EC57210282683A9006453E0 /* ClassData+CoreDataProperties.swift */,
+				6EC5720F282683A9006453E0 /* ClassData+CoreDataClass.swift */,
+				6EF12A5928267386000F31AC /* Data.swift */,
 				6EC9C76F282665EF0005CE8D /* TestCoreDataApp.swift */,
 				6EC9C771282665EF0005CE8D /* ContentView.swift */,
+				6EC5721528268E52006453E0 /* DayIntex.swift */,
+				6EC5721728268F23006453E0 /* TimeIntex.swift */,
+				6EC5721928268F8D006453E0 /* ClassMatrix.swift */,
+				6EC7D976283658C4002C8B9C /* ForWatchCOreData.swift */,
+				6EC5721328268CE3006453E0 /* classBox.swift */,
+				6EC5721B2827A421006453E0 /* ClassSetting.swift */,
+				6EC7D97828475335002C8B9C /* EvalItemSetting.swift */,
+				6EDDB1F628526689003EBBFF /* EvaluatedCard.swift */,
+				6ECE25A428532E0700564952 /* ShowAllEvaluatedCards.swift */,
+				6ECE25A6285336B700564952 /* MissedTimeSetting.swift */,
+				6EBB44E428521C7E0065806A /* UserDefalutsSetting.swift */,
 				6EC9C773282665F10005CE8D /* Assets.xcassets */,
 				6EC9C778282665F10005CE8D /* Persistence.swift */,
 				6EC9C77A282665F10005CE8D /* TestCoreData.xcdatamodeld */,
@@ -143,10 +185,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EC5721828268F23006453E0 /* TimeIntex.swift in Sources */,
+				6EC57212282683A9006453E0 /* ClassData+CoreDataProperties.swift in Sources */,
+				6EC5721C2827A421006453E0 /* ClassSetting.swift in Sources */,
+				6EDDB1F728526689003EBBFF /* EvaluatedCard.swift in Sources */,
+				6EBB44E528521C7E0065806A /* UserDefalutsSetting.swift in Sources */,
+				6EC5721628268E52006453E0 /* DayIntex.swift in Sources */,
 				6EC9C77C282665F10005CE8D /* TestCoreData.xcdatamodeld in Sources */,
+				6EF12A5A28267386000F31AC /* Data.swift in Sources */,
 				6EC9C779282665F10005CE8D /* Persistence.swift in Sources */,
+				6EC7D97928475335002C8B9C /* EvalItemSetting.swift in Sources */,
+				6EC5721428268CE3006453E0 /* classBox.swift in Sources */,
 				6EC9C772282665EF0005CE8D /* ContentView.swift in Sources */,
 				6EC9C770282665EF0005CE8D /* TestCoreDataApp.swift in Sources */,
+				6EC7D977283658C4002C8B9C /* ForWatchCOreData.swift in Sources */,
+				6ECE25A7285336B700564952 /* MissedTimeSetting.swift in Sources */,
+				6EC57211282683A9006453E0 /* ClassData+CoreDataClass.swift in Sources */,
+				6ECE25A528532E0700564952 /* ShowAllEvaluatedCards.swift in Sources */,
+				6EC5721A28268F8D006453E0 /* ClassMatrix.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +339,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -312,6 +369,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -13,10 +13,21 @@ struct PersistenceController {
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-        for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-        }
+        
+        var exclassdata = ClassData(context: viewContext)
+        
+        exclassdata.name = "授業名"
+        exclassdata.room = "教室名"
+        exclassdata.credit = 2
+        exclassdata.time = 1
+        exclassdata.day = day.monday.rawValue
+        exclassdata.evalItems = try? NSKeyedArchiver.archivedData(withRootObject: [
+            EvalItem(newname: "出席", newratio: 60, newtime: 15),
+            EvalItem(newname: "期末テスト", newratio: 30, newtime: 1),
+            EvalItem(newname: "定期テスト", newratio: 10, newtime: 3),
+                                                                                 ],
+                                                                 requiringSecureCoding: false)
+        
         do {
             try viewContext.save()
         } catch {
