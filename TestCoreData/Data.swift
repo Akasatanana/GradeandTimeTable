@@ -8,45 +8,50 @@
 import Foundation
 import CoreData
 import SwiftUI
+import Combine
+
+let screenWidth = UIScreen.main.bounds.size.width * 0.95
+let screenHeight = UIScreen.main.bounds.size.height * 0.85
 
 class UserSettings: ObservableObject{
-    @Published var firstClassTime: Int {
-        didSet{
-            UserDefaults.standard.set(firstClassTime, forKey: "firstClassTime")
-        }
-    }
-
     @Published var lastClassTime: Int {
         didSet{
             UserDefaults.standard.set(lastClassTime, forKey: "lastClassTime")
         }
     }
-
     @Published var timeTableName: String {
         didSet{
             UserDefaults.standard.set(timeTableName, forKey: "timeTableName")
         }
     }
-    init(){
-        self.firstClassTime = UserDefaults.standard.integer(forKey: "firstClassTime")
-        self.lastClassTime = UserDefaults.standard.integer(forKey: "lastClassTime")
-        self.timeTableName = UserDefaults.standard.string(forKey: "timeTableName") ?? "時間割"
+    @Published var classStartsEndsTimes: [[Int]]{
+        didSet{
+            UserDefaults.standard.set(classStartsEndsTimes, forKey: "classStartsEndsTimes")
+        }
+    }
+    @Published var showClassStartsEndsTimes: Bool{
+        didSet{
+            UserDefaults.standard.set(showClassStartsEndsTimes, forKey: "showClassStartsEndsTimes")
+        }
     }
     
-    var classRange:ClosedRange<Int> {firstClassTime ... lastClassTime}
+    init(){
+        self.lastClassTime = UserDefaults.standard.integer(forKey: "lastClassTime")
+        self.timeTableName = UserDefaults.standard.string(forKey: "timeTableName") ?? "時間割"
+        self.classStartsEndsTimes = UserDefaults.standard.array(forKey: "classStartsEndsTimes") as? [[Int]] ?? [[]]
+        self.showClassStartsEndsTimes = UserDefaults.standard.bool(forKey: "showClassStartsEndsTimes")
+    }
+    
+    var classRange:ClosedRange<Int> {1 ... lastClassTime}
 
-    let screenWidth = UIScreen.main.bounds.size.width
-    let screenHeight = UIScreen.main.bounds.size.height * 0.85
-
-
-    var classBoxWidth: CGFloat {screenWidth / (CGFloat(Float(classRange.count)) + 0.5)}
-    var classBoxHeight: CGFloat {screenHeight / (CGFloat(Float(classRange.upperBound)) + 0.35)}
+    var classBoxWidth: CGFloat {screenWidth / (CGFloat(Float(day.all.count)) + 0.5)}
+    var classBoxHeight: CGFloat {screenHeight / (CGFloat(Float(5)) + 0.35)}
 
     var indexBoxWidth: CGFloat {screenWidth / 16}
     var indexBoxHeight: CGFloat {screenHeight / 20}
 
-var classBoxSpaceWidth: CGFloat {(screenWidth - (classBoxWidth * CGFloat(Float(classRange.count)) + indexBoxWidth)) / CGFloat(Float(classRange.count))}
-var classBoxSpaceHeight: CGFloat {(screenHeight - (classBoxHeight * (CGFloat(Float(classRange.upperBound))) + indexBoxHeight)) / (CGFloat(Float(classRange.upperBound)))}
+    var classBoxSpaceWidth: CGFloat = 2
+    var classBoxSpaceHeight: CGFloat = 2
     
 }
 
@@ -117,5 +122,130 @@ class EvalItem: NSObject, NSCoding, Codable{
         coder.encode(self.evalRatio, forKey: "evalRatio")
         coder.encode(self.evalTime, forKey: "evalTime")
         coder.encode(self.missedTime, forKey: "missedTime")
+    }
+}
+
+/// A wrapper of the underlying optional observable object
+/// that will emit a notification when the optional state or the observable object changes.
+public class OptionalWrapper<ObjectType: ObservableObject>: ObservableObject {
+    
+    /// The subscrption of underlying observable object.
+    private var cancellable: AnyCancellable?
+    
+    /// The underlying optional observable object.
+    public var optionalObject: ObjectType? {
+        willSet { observe(newValue) }
+    }
+    
+    /// Creates an OptionalWrapper with an optional observable object.
+    public init(optionalObject: ObjectType?) {
+        self.optionalObject = optionalObject
+        observe(optionalObject)
+    }
+    
+    /// Observe the new observable object.
+    private func observe(_ newObject: ObjectType?) {
+        objectWillChange.send()
+        cancellable = newObject?.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+    }
+}
+
+/// A property wrapper type that subscribes to an optional observable object and
+/// invalidates a view whenever the optional state or the observable object changes.
+@propertyWrapper
+public struct OptionalObservedObject<ObjectType: ObservableObject>: DynamicProperty {
+
+    @dynamicMemberLookup
+    public struct Wrapper {
+
+        internal let optionalWrapper: OptionalWrapper<ObjectType>
+
+        public subscript<Subject>(dynamicMember keyPath: ReferenceWritableKeyPath<ObjectType, Subject>) -> Binding<Optional<Subject>> {
+            Binding<Optional<Subject>>.init {
+                optionalWrapper.optionalObject?[keyPath: keyPath]
+            } set: { subject in
+                if let subject = subject {
+                    optionalWrapper.optionalObject?[keyPath: keyPath] = subject
+                }
+            }
+        }
+    }
+    
+    /// The underlying wrapper for the optional observable object.
+    @ObservedObject private var objectWrapper: OptionalWrapper<ObjectType>
+
+    public init(wrappedValue: ObjectType?) {
+        _objectWrapper = .init(initialValue: OptionalWrapper(optionalObject: wrappedValue))
+    }
+
+    public var wrappedValue: ObjectType? {
+        get { objectWrapper.optionalObject }
+        nonmutating set { objectWrapper.optionalObject = newValue }
+    }
+    public var projectedValue: OptionalObservedObject<ObjectType>.Wrapper {
+        Wrapper(optionalWrapper: objectWrapper)
+    }
+}
+
+func CalcMissedRatio(classdata: ClassData) -> Double{
+    var missedRatio: Double = 0.0
+    if let data = classdata.evalItems{
+        let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
+        for item in evalitems{
+            missedRatio += (Double(item.evalRatio) / Double(item.evalTime)) * Double(item.missedTime)
+        }
+        return missedRatio
+    }else{
+        return 0
+    }
+}
+
+enum grade: Int{
+    case S = 90
+    case A = 80
+    case B = 70
+    case C = 60
+    case D = 0
+    
+    static var all: [grade] = [S,
+                             A,
+                             B,
+                             C,
+                             D]
+}
+
+func JudgeGrade(classdata: ClassData) -> String?{
+    switch  (100 - CalcMissedRatio(classdata: classdata)){
+    case Double(grade.D.rawValue) ..< Double(grade.C.rawValue):
+        return "D"
+    case Double(grade.C.rawValue) ..< Double(grade.B.rawValue):
+        return "C"
+    case Double(grade.B.rawValue) ..< Double(grade.A.rawValue):
+        return "B"
+    case Double(grade.A.rawValue) ..< Double(grade.S.rawValue):
+        return "A"
+    case Double(grade.S.rawValue) ..< Double(100):
+        return "S"
+    default:
+        return nil
+    }
+}
+
+func JudgeGradePoint(classdata: ClassData) -> Double?{
+    switch  (100 - CalcMissedRatio(classdata: classdata)){
+    case Double(grade.D.rawValue) ..< Double(grade.C.rawValue):
+        return 0.0
+    case Double(grade.C.rawValue) ..< Double(grade.B.rawValue):
+        return 1.0
+    case Double(grade.B.rawValue) ..< Double(grade.A.rawValue):
+        return 2.0
+    case Double(grade.A.rawValue) ..< Double(grade.S.rawValue):
+        return 3.0
+    case Double(grade.S.rawValue) ..< Double(100):
+        return 4.0
+    default:
+        return nil
     }
 }

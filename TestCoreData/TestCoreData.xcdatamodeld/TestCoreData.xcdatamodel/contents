@@ -7,9 +7,10 @@
         <attribute name="evalItems" optional="YES" attributeType="Binary"/>
         <attribute name="name" attributeType="String" defaultValueString="&quot;&quot;"/>
         <attribute name="room" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="teacherName" optional="YES" attributeType="String"/>
         <attribute name="time" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="ClassData" positionX="-63" positionY="-9" width="128" height="134"/>
+        <element name="ClassData" positionX="-63" positionY="-9" width="128" height="149"/>
     </elements>
 </model>

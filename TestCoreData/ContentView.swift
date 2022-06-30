@@ -10,9 +10,11 @@ import CoreData
 
 struct ContentView: View {
     init(){
-        UserDefaults.standard.register(defaults: ["firstClassTime": 1,
-                                                  "lastClassTime": 6,
-                                                  "timeTableName": "時間割!!"])
+        UserDefaults.standard.register(defaults: ["lastClassTime": 5,
+                                                  "timeTableName": "時間割",
+                                                  "classStartsEndsTimes": Array(repeating: [0, 0, 0, 0], count: 5),
+                                                  "showClassStartsEndsTimes": false
+                                                 ])
     }
     var body: some View {
         TabView{

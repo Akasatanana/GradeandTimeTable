@@ -9,6 +9,11 @@ import SwiftUI
 
 struct ClassMatrix: View {
     @EnvironmentObject var setting: UserSettings
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \ClassData.time, ascending: true)],
+        animation: .default)
+    private var classes: FetchedResults<ClassData>
+    
     var body: some View {
         NavigationView{
             ScrollView(){
@@ -20,8 +25,13 @@ struct ClassMatrix: View {
                             ForEach(day.all, id: \.self){day in
                                 VStack(spacing: setting.classBoxSpaceHeight){
                                     ForEach(setting.classRange, id: \.self){time in
+                                        let selectedclass = classes.filter({
+                                            $0.unwrappedDay == day.rawValue &&
+                                            $0.unwrappedTime == time
+                                        }).first
+                                        
                                         NavigationLink(destination: {ClassSetting(day: day, time: time)}){
-                                            ClassBox(day: day, time: time)
+                                            ClassBox(selectedclass: selectedclass)
                                         }
                                         .buttonStyle(.plain)
                                     }

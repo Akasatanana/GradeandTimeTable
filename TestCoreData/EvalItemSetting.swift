@@ -8,27 +8,24 @@
 import SwiftUI
 
 struct EvalItemSetting: View {
-    let day: day
-    let time: Int
+    @OptionalObservedObject var selectedclass: ClassData?
     
     @Environment(\.presentationMode) var presentationMode
     @State var newEvalItems: [EvalItem] = []
-    @State var newName: String = "出席"
+    @State var newName: String = ""
+    @State var isEditingName: Bool = false
     @State var newRatio: Double = 60
-    @State var newTime: Int = 15
+    @State var isEditingRatio: Bool = false
+    @State var newTime: Int = 1
     @State var notHaveEnoughItems: Bool = false
+    @State var noEvalItems: Bool = false
+    @State var noName: Bool = false
     
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \ClassData.time, ascending: true)],
         animation: .default)
     private var classes: FetchedResults<ClassData>
-    
-    var selectedClass: ClassData? {classes.filter({
-        $0.day == day.rawValue &&
-        $0.time == time as NSNumber
-    }).first
-    }
     
     var sumOfRatio: Double {
         var res :Double = 0
@@ -39,69 +36,164 @@ struct EvalItemSetting: View {
     }
     
     var body: some View {
-        Form{
-            Section{
-                TextField("", text: $newName)
-                    .padding()
-                
-                VStack{
-                    Text("評価割合：\(Int(newRatio))%")
-                    Slider(value: $newRatio, in: 1 ... 100, step: 1)
+        ScrollView{
+            VStack(spacing: 20){
+                HStack{
+                    Text("追加する評価項目の設定")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Spacer()
                 }
-                Stepper("評価回数：\(newTime)", value: $newTime, in: 1 ... 20)
+                VStack(alignment: .center, spacing: 20){
+                    HStack{
+                        Image(systemName: "a.circle.fill")
+                            .foregroundColor(isEditingName ? .blue : .black)
+                            .shadow(color: isEditingName ? .blue : .clear, radius: 0.2)
+                        Text(":")
+                            .foregroundColor(isEditingName ? .blue : .black)
+                            .shadow(color: isEditingName ? .blue : .clear, radius: 0.2)
+                        TextField("項目名", text: $newName,
+                                  onEditingChanged: {begin in
+                            if begin {
+                                isEditingName = true
+                                newName = ""
+                            }else{
+                                isEditingName = false
+                            }
+                            
+                        })
+                            .multilineTextAlignment(.leading)
+                    }
+                    .frame(width: screenWidth * 0.75,
+                           height: screenHeight * 0.03)
+                    Divider()
+                    
+                    VStack{
+                        Text("評価割合：\(Int(newRatio))%")
+                            .foregroundColor(isEditingRatio ? .blue : .black)
+                        Slider(value: $newRatio, in: 1 ... 100, step: 1, onEditingChanged: {begin in
+                            if begin {
+                                isEditingRatio = true
+                            }else{
+                                isEditingRatio = false
+                            }
+                        })
+                    }
+                    .frame(width: screenWidth * 0.75,
+                           height: screenHeight * 0.06)
+                    Divider()
+                    Stepper("評価回数：\(newTime)", value: $newTime, in: 1 ... 20)
+                        .frame(width: screenWidth * 0.75,
+                               height: screenHeight * 0.03)
+                }
+                .fixedSize()
+                .padding()
+                .background{
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(.gray, lineWidth: 2)
+                }
                 
                 Button(action: {
-                    let newitem = EvalItem(newname: newName, newratio: newRatio, newtime: newTime)
-                    newEvalItems.append(newitem)
+                    if newName == ""{
+                        noName = true
+                    }else if sumOfRatio + newRatio > 100{
+                        notHaveEnoughItems = true
+                    }else{
+                        let newitem = EvalItem(newname: newName, newratio: newRatio, newtime: newTime)
+                        newEvalItems.append(newitem)
+                    }
                 }){
-                    HStack{
-                        Spacer()
-                        Text("項目を追加")
-                            .foregroundColor(.blue)
-                            .bold()
+                    RoundedRectangle(cornerRadius: 10)
+                        .frame(width: screenWidth / 2 , height: screenHeight * 0.08, alignment: .center)
+                        .foregroundColor(.blue)
+                        .overlay{
+                            Text("項目を追加")
+                                .bold()
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .frame(width: (screenWidth / 2) * 0.8)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.5)
                     }
                 }
-               
-            }header: {
-                Text("追加する項目の設定")
-            }
-            
-            Section{
-                ForEach(newEvalItems, id: \.self){evalitem in
-                    HStack{
-                        Text(evalitem.name)
-                        Spacer()
-                        VStack(alignment: .leading){
-                            Text("評価割合：\(Int(evalitem.evalRatio))％")
-                            Text("評価回数：\(evalitem.evalTime)回")
-                        }
+                .alert("注意",
+                       isPresented: $noName){
+                    Button("了解", role: .cancel){
+                        noName = false
                     }
+                }message: {
+                    Text("評価項目の名前を設定して下さい．")
                 }
-            }header: {
-                HStack(){
+                
+                HStack{
                     Text("現在の評価項目")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                     Spacer()
-                    Text("残り\(Int(100 - sumOfRatio))%")
-                        .bold()
+                    Text("残り\(100 - Int(sumOfRatio))％")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+
+                VStack{
+                    if newEvalItems != []{
+                        ForEach(newEvalItems, id: \.self){evalitem in
+                            HStack{
+                                Text(evalitem.name)
+                                Spacer()
+                                VStack(alignment: .leading){
+                                    Text("評価割合：\(Int(evalitem.evalRatio))％")
+                                    Text("評価回数：\(evalitem.evalTime)回")
+                                }
+                            }
+                            .frame(width: screenWidth * 0.75,
+                                   height: screenHeight * 0.06)
+                            if evalitem != newEvalItems.last{
+                                Divider()
+                            }
+                        }
+                    }else{
+                        Text("評価項目が未設定です．")
+                            .frame(width: screenWidth * 0.75,
+                                   height: screenHeight * 0.06)
+                    }
+                }
+                .fixedSize()
+                .padding()
+                .background{
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(.gray, lineWidth: 2)
+                        .background(.white)
                 }
             }
-            
-        }//Form ends here
+            .frame(width: screenWidth * 0.9)
+        }
+        .navigationBarBackButtonHidden(true)
         .alert("注意",
                isPresented: $notHaveEnoughItems){
-            Button(action: {
-                
-            }){
-                Text("了解")
+            Button("了解", role: .cancel){
+                notHaveEnoughItems = false
             }
         }message: {
             Text("評価割合の合計が100%になるように設定して下さい．")
+        }
+        .alert("注意", isPresented: $noEvalItems){
+            Button("了解", role: .destructive){
+                presentationMode.wrappedValue.dismiss()
+                noEvalItems = false
+            }
+            
+            Button("設定に戻る", role: .cancel){
+                noEvalItems = false
+            }
+        }message: {
+            Text("評価項目が保存されていませんが，宜しいですか？")
         }
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing){
                     Button(action: {
                         if sumOfRatio == 100{
-                            if let selectedclass = selectedClass{
+                            if let selectedclass = selectedclass {
                                 do{
                                     if let data: Data? = try NSKeyedArchiver.archivedData(withRootObject: newEvalItems, requiringSecureCoding: false) as Data{
                                         selectedclass.evalItems = data
@@ -112,18 +204,7 @@ struct EvalItemSetting: View {
                                     print(errror.localizedDescription)
                                 }
                             }else{
-                                let selectedclass = ClassData(context: viewContext)
-                                selectedclass.day = self.day.rawValue
-                                selectedclass.time = self.time as NSNumber
-                                do{
-                                    if let data: Data? = try NSKeyedArchiver.archivedData(withRootObject: newEvalItems, requiringSecureCoding: false) as Data{
-                                        selectedclass.evalItems = data
-                                    }else{
-                                        selectedclass.evalItems = nil
-                                    }
-                                }catch let errror{
-                                    print(errror.localizedDescription)
-                                }
+                                
                             }
                             try? viewContext.save()
                             presentationMode.wrappedValue.dismiss()
@@ -138,15 +219,20 @@ struct EvalItemSetting: View {
                     }
                     .buttonStyle(.plain)
                 }
+                ToolbarItem(placement: .navigationBarLeading){
+                    Button(action: {
+                        noEvalItems = true
+                    }, label: {
+                        Text("＜戻る")
+                    })
+                }
         }
-            .onAppear{
-                
-            }
     }
 }
-
+/*
 struct EvalItemSetting_Previews: PreviewProvider {
     static var previews: some View {
         EvalItemSetting(day: .monday, time: 1)
     }
 }
+ */

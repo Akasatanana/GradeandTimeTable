@@ -12,26 +12,35 @@ struct ClassSetting: View {
     let time: Int
     
     @Environment(\.managedObjectContext) private var viewContext
-    
-    @State var newName: String = "授業名"
-    @State var newRoom: String = "教室名"
-    @State var newCredit: Int = 2
-    @State var newColor: classColor = .gray
-    @State var willDeleteEvalItems: Bool = false
-    
+    @EnvironmentObject var setting: UserSettings
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \ClassData.time, ascending: true)],
         animation: .default)
     private var classes: FetchedResults<ClassData>
     
-    var selectedClass: ClassData? {classes.filter({
-        $0.day == day.rawValue &&
-        $0.time == time as NSNumber
-    }).first
-    }
+    @State var newName: String = ""
+    @State var newRoom: String = ""
+    @State var newTeacherName: String = ""
+    @State var noPropertySet: Bool = false
+    @State var newCredit: Int = 2
+    @State var newColor: classColor = .gray
+    @State var willDeleteEvalItems: Bool = false
+    @State var willDeleteClass: Bool = false
     
+    var selectedclass: ClassData? {
+        return classes.filter({
+            $0.unwrappedDay == day.rawValue &&
+            $0.unwrappedTime == time
+        }).first
+    }
+    var cangoEvalSetting: Bool {selectedclass != nil}
+    //ボタンのアクションの分岐，trueならnavigationlinkをactivate，falseならalertをactivate
+    @State var goEvalSetting: Bool = false
+    //navigationlinkにバインドする，
+    @State var showNoClassAlart: Bool = false
+
     var evalItems: [EvalItem]? {
-        if let data = selectedClass?.evalItems{
+        if let data = selectedclass?.evalItems{
             let evalitem = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
             return evalitem
         }else{
@@ -42,135 +51,264 @@ struct ClassSetting: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        NavigationView{
-            Form{
-                TextField("授業名", text: $newName)
-                    .padding(.all)
-                
-                TextField("教室名",  text: $newRoom)
-                    .padding(.all)
-                
-                Stepper("単位数：\(newCredit)", value: $newCredit, in: 1 ... 10)
-                
-                HStack(){
-                    ForEach(classColor.all, id: \.self){color in
-                        Button(action: {
-                            newColor = color
-                            
-                        }, label: {
-                            color.toColor()
-                                .frame(width: 30, height: 30)
-                                .cornerRadius(75)
-                                                
-                                .overlay(RoundedRectangle(cornerRadius: 75).stroke(Color.black, lineWidth: newColor == color ? 4 : 0))
-                                        })
-                        .buttonStyle(.plain)
+            ScrollView{
+                VStack(spacing: 20){
+                    VStack(alignment: .center, spacing: 20){
+                        HStack{
+                            Image(systemName: "book.closed.fill")
+                                
+                            Text(":")
+                                
+                            TextField(newName, text: $newName, prompt: Text("授業名"))
+                                .multilineTextAlignment(.leading)
+                        }
+                        .frame(width: screenWidth * 0.75,
+                               height: screenHeight * 0.03)
+                        Divider()
                         
-                    }
-                }
-                
-                NavigationLink(destination: EvalItemSetting(day: day, time: time)){
-                    Text("評価項目の設定")
-                        .foregroundColor(.blue)
-                        .bold()
-                        .padding()
-                }
-                
-                Section{
-                    if let items = evalItems{
-                        ForEach(items, id: \.self){item in
-                            HStack{
-                                Text(item.name)
-                                Spacer()
-                                Text("\(Int(item.evalRatio))％")
+                        HStack{
+                            Image(systemName: "mappin")
+                                
+                            Text(":")
+                                
+                            TextField(newRoom, text: $newRoom, prompt: Text("教室名"))
+                                .multilineTextAlignment(.leading)
+                        }
+                        .frame(width: screenWidth * 0.75,
+                               height: screenHeight * 0.03)
+                        Divider()
+                        
+                        HStack{
+                            Image(systemName: "person.fill")
+                                
+                            Text(":")
+                                
+                            TextField(newTeacherName, text: $newTeacherName, prompt: Text("教員名"))
+                                .multilineTextAlignment(.leading)
+                        }
+                        .frame(width: screenWidth * 0.75,
+                               height: screenHeight * 0.03)
+                        Divider()
+                        Stepper("単位数：\(newCredit)", value: $newCredit)
+                            .frame(width: screenWidth * 0.8,
+                                   height: screenHeight * 0.02)
+                        Divider()
+                        
+                        HStack{
+                            Text("色：")
+                            Spacer()
+                            HStack(){
+                                ForEach(classColor.all, id: \.self){color in
+                                    Button(action: {
+                                        newColor = color
+                                        
+                                    }, label: {
+                                        color.toColor()
+                                            .frame(width: 30, height: 30)
+                                            .cornerRadius(75)
+                                                            
+                                            .overlay(RoundedRectangle(cornerRadius: 75).stroke(Color.black, lineWidth: newColor == color ? 4 : 0))
+                                                    })
+                                    .buttonStyle(.plain)
+                                    
+                                }
                             }
                         }
-                    }else{
-                        Text("評価項目は設定されていません．")
+                        .frame(width: screenWidth * 0.2)
                     }
-                }header: {
-                    Text("評価項目")
-                        .bold()
-                }
-                Button(action: {
-                    willDeleteEvalItems = true
-                }){
-                    Spacer()
-                    Text("評価項目の削除")
-                        .bold()
-                        .foregroundColor(.red)
-                    Spacer()
-                }
-            }//form ends here
-            .toolbar{
-                ToolbarItem(placement: .navigationBarLeading){
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }){
-                        Text("＜back")
-                            .foregroundColor(.blue)
-                            .bold()
+                    .fixedSize()
+                    .padding()
+                    .background{
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(.gray, lineWidth: 2)
                     }
-                    .buttonStyle(.plain)
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing){
+                    
                     Button(action: {
-                        if let selectedclass = selectedClass{
-                            selectedclass.name = newName
-                            selectedclass.room = newRoom
-                            selectedclass.credit = newCredit as NSNumber
-                            selectedclass.color = newColor.rawValue
+                        if newName == "" && newRoom == ""{
+                            noPropertySet = true
                         }else{
-                            let selectedclass = ClassData(context: viewContext)
-                            selectedclass.name = newName
-                            selectedclass.room = newRoom
-                            selectedclass.color = newColor.rawValue
-                            selectedclass.credit = newCredit as NSNumber
-                            selectedclass.day = self.day.rawValue
-                            selectedclass.time = self.time as NSNumber
+                            if let selectedclass = selectedclass{
+                                selectedclass.name = newName
+                                selectedclass.room = newRoom
+                                selectedclass.teacherName = newTeacherName
+                                selectedclass.credit = newCredit as NSNumber
+                                selectedclass.color = newColor.rawValue
+                            }else{
+                                let selectedclass = ClassData(context: viewContext)
+                                selectedclass.name = newName
+                                selectedclass.room = newRoom
+                                selectedclass.teacherName = newTeacherName
+                                selectedclass.color = newColor.rawValue
+                                selectedclass.credit = newCredit as NSNumber
+                                selectedclass.day = self.day.rawValue
+                                selectedclass.time = self.time as NSNumber
+                            }
+                            try? viewContext.save()
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }){
+                        RoundedRectangle(cornerRadius: 10)
+                            .frame(width: screenWidth / 2 , height: screenHeight * 0.08, alignment: .center)
+                            .foregroundColor(.blue)
+                            .overlay{Text("保存")
+                                    .bold()
+                                    .foregroundColor(.white)
+                                    .font(.title2)
+                            }
+                    }
+                    .alert("確認", isPresented: $noPropertySet, actions: {
+                        Button("了解", role: .cancel){
+                            noPropertySet = false
+                        }
+                    }, message: {
+                        Text("授業名か教室名を入力してください．")
+                    })
+                    
+                    
+                    Button(action: {
+                        if cangoEvalSetting{
+                            goEvalSetting = true
+                        }else{
+                            showNoClassAlart = true
+                        }
+                    }){
+                        RoundedRectangle(cornerRadius: 10)
+                            .frame(width: screenWidth / 2 , height: screenHeight * 0.08, alignment: .center)
+                            .foregroundColor(.red)
+                            .opacity(!cangoEvalSetting ? 0.2 : 1.0)
+                            .overlay{
+                                Text("評価項目を設定する")
+                                    .bold()
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .frame(width: (screenWidth / 2) * 0.8)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }
+                    }
+                    
+                    .alert("確認", isPresented: $showNoClassAlart, actions: {
+                        Button("了解", role: .cancel){
+                            showNoClassAlart = false
+                        }
+                    }, message: {
+                        Text("授業を登録してから評価項目を設定して下さい．")
+                    })
+                    
+                    HStack{
+                        Text("現在の評価項目：")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                    VStack{
+                        if let evalitems = evalItems {
+                            ForEach(evalitems, id: \.self){evalitem in
+                                HStack{
+                                    Text(evalitem.name)
+                                    Spacer()
+                                    Text("\(Int(evalitem.evalRatio))％")
+                                }
+                                .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                                if evalitem != evalitems.last{
+                                    Divider()
+                                }
+                            }
+                        }else{
+                            Text("評価項目無し")
+                                .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                                }
+                    }
+                    .fixedSize()
+                    .padding()
+                    .background{
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(.gray, lineWidth: 2)
+                            .background(.white)
+                    }
+
+                                
+                    NavigationLink(destination: EvalItemSetting(selectedclass: selectedclass),
+                                   isActive: $goEvalSetting,
+                                   label: {EmptyView()})
+                    
+                    Button(action: {
+                        willDeleteEvalItems = true
+                    }){
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.red, lineWidth: 3)
+                            .frame(width: screenWidth / 2 , height: screenHeight * 0.08, alignment: .center)
+                            .foregroundColor(.white)
+                            .overlay{
+                                Text("評価項目を削除")
+                                    .bold()
+                                    .font(.title2)
+                                    .foregroundColor(.red)
+                                    .frame(width: (screenWidth / 2) * 0.8)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }
+                    }
+                    
+                    .alert("確認", isPresented: $willDeleteEvalItems){
+                        Button("削除", role: .destructive){
+                            if let selectedclass = selectedclass{
+                                selectedclass.evalItems = nil
+                            }
+                            try? viewContext.save()
                         }
                         
-                        try? viewContext.save()
-                        
-                        presentationMode.wrappedValue.dismiss()
-                    }){
-                        Text("授業を登録")
-                            .foregroundColor(.blue)
-                            .bold()
+                        Button("戻る", role: .cancel){
+                            
+                        }
+                    }message: {
+                        Text("評価項目を全て削除します．宜しいですか？")
                     }
-                    .buttonStyle(.plain)
+                    
+                    Button(action: {
+                        willDeleteClass = true
+                    }){
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.red, lineWidth: 3)
+                            .frame(width: screenWidth / 2 , height: screenHeight * 0.08, alignment: .center)
+                            .foregroundColor(.white)
+                            .overlay{
+                                Text("授業を削除")
+                                    .bold()
+                                    .font(.title2)
+                                    .foregroundColor(.red)
+                                    .frame(width: (screenWidth / 2) * 0.8)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.5)
+                            }
+                    }
+                    .alert("確認", isPresented: $willDeleteClass){
+                        Button("削除", role: .destructive){
+                            if let selectedclass = selectedclass{
+                                viewContext.delete(selectedclass)
+                                try? viewContext.save()
+                            }
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                        
+                        Button("戻る", role: .cancel){
+                            
+                        }
+                    }message: {
+                        Text("この授業を削除します．宜しいですか？")
+                    }
                 }
+                .frame(width: screenWidth * 0.9)
             }
             .onAppear{
-                if let selectedclass = selectedClass{
+                if let selectedclass = selectedclass{
                     newName = selectedclass.unwrappedName
                     newRoom = selectedclass.unwrappedRoom
+                    newTeacherName = selectedclass.unwrappedTeacherName
                     newCredit = selectedclass.unwrappedCredit
                     newColor = classColor(rawValue: selectedclass.unwrappedColor) ?? .gray
                 }
-                else{
-                    newName = "授業名"
-                    newRoom = "教室名"
-                    newCredit = 2
-                    newColor = .gray
-                }
             }
-        }//navigationview ends here
-        .navigationBarHidden(true)
-        
-        .alert("警告", isPresented: $willDeleteEvalItems){
-            Button(action: {
-                if let selectedclass = selectedClass{
-                    selectedclass.evalItems = nil
-                }
-                try? viewContext.save()
-            }){
-                Text("了解")
-            }
-        }message: {
-            Text("評価項目を全て削除します．宜しいですか？")
-        }
     }
 }
 /*
@@ -182,3 +320,9 @@ struct ClassSetting_Previews: PreviewProvider {
     }
 }
  */
+
+struct Previews_ClassSetting_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+    }
+}
