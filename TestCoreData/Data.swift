@@ -268,7 +268,7 @@ func JudgeGrade(classdata: ClassData) -> String?{
         return "B"
     case Double(grade.A.rawValue) ..< Double(grade.S.rawValue):
         return "A"
-    case Double(grade.S.rawValue) ..< Double(100):
+    case Double(grade.S.rawValue) ..< Double(101):
         return "S"
     default:
         return nil
@@ -285,7 +285,7 @@ func JudgeGradePoint(classdata: ClassData) -> Double?{
         return 2.0
     case Double(grade.A.rawValue) ..< Double(grade.S.rawValue):
         return 3.0
-    case Double(grade.S.rawValue) ..< Double(100):
+    case Double(grade.S.rawValue) ..< Double(101):
         return 4.0
     default:
         return nil

@@ -27,7 +27,7 @@ struct ChildButton: View {
                     Circle()
                         .fill()
                         .foregroundColor(color)
-                        .frame(width: 50, height: 50)
+                        .frame(width: 60, height: 60)
                     image
                         .foregroundColor(.black)
                 }

@@ -60,6 +60,16 @@ struct ClassSetting: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
+        ZStack{
+            ParentalButton(position: (x: screenWidth * 0.9, y: screenHeight * 0.8),
+                           offset: 80.0,
+                           childrenButtonsInfo: [
+                            (color: .blue, image: Image(systemName: "pencil"), content: {}, "青"),
+                            (color: .red, image: Image(systemName: "pencil"), content: {}, "赤"),
+                            (color: .green, image: Image(systemName: "pencil"), content: {}, "緑")
+                           ]
+                           )
+            
             ScrollView{
                 VStack(spacing: 20){
                     VStack(alignment: .center, spacing: 20){
@@ -324,15 +334,16 @@ struct ClassSetting: View {
                 }
                 .frame(width: screenWidth * 0.9)
             }
-            .onAppear{
-                if let selectedclass = selectedclass{
-                    newName = selectedclass.unwrappedName
-                    newRoom = selectedclass.unwrappedRoom
-                    newTeacherName = selectedclass.unwrappedTeacherName
-                    newCredit = selectedclass.unwrappedCredit
-                    newColor = classColor(rawValue: selectedclass.unwrappedColor) ?? .gray
-                }
+        }
+        .onAppear{
+            if let selectedclass = selectedclass{
+                newName = selectedclass.unwrappedName
+                newRoom = selectedclass.unwrappedRoom
+                newTeacherName = selectedclass.unwrappedTeacherName
+                newCredit = selectedclass.unwrappedCredit
+                newColor = classColor(rawValue: selectedclass.unwrappedColor) ?? .gray
             }
+        }
     }
 }
 /*
