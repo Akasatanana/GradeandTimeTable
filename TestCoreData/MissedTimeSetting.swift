@@ -11,14 +11,24 @@ struct MissedTimeSetting: View {
     @ObservedObject var selectedclass: ClassData
     @Environment(\.managedObjectContext) private var viewContext
     
-    var evalitems: [EvalItem] {
-        if let data = selectedclass.evalItems{
-            let items = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
+    var attendlikeEvalItems: [AttendlikeEvalItem] {
+        if let data = selectedclass.attendlikeEvalItems{
+            let items = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [AttendlikeEvalItem]
             return items
         }else{return []}
     }//読み取り専用
     
-    @State var newEvalItems: [EvalItem] = []
+    var testlikeEvalItems: [TestlikeEvalItem] {
+        if let data = selectedclass.testlikeEvalItems{
+            let items = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [TestlikeEvalItem]
+            return items
+        }else{return []}
+    }//読み取り専用
+    
+    @State var newAttendlikeEvalItems: [AttendlikeEvalItem] = []
+    @State var newTestlikeEvalItems: [TestlikeEvalItem] = []
+    @State var currentTestlikeEvalItemIndex : Int = -1
+    @State var forInputMissedRatio: Int = 0
     
     var body: some View {
         ScrollView{
@@ -33,37 +43,37 @@ struct MissedTimeSetting: View {
                     .font(.largeTitle)
                     .padding()
                 HStack{
-                    Text("落とした割合")
+                    Text("現在の割合")
                         .font(.caption)
                         .foregroundColor(.gray)
                     Spacer()
                 }
                 
-                Text(String(format: "%.2f", CalcMissedRatio(classdata: selectedclass)) + "％")
+                Text(String(format: "%.2f", CalcgotRatio(classdata: selectedclass)) + "％")
                     .font(.largeTitle)
                     .padding()
                 
                 HStack{
-                    Text("落とした回数")
+                    Text("評価項目")
                         .font(.caption)
                         .foregroundColor(.gray)
                     Spacer()
                 }
                 VStack{
-                    if newEvalItems.count == evalitems.count{
-                        ForEach(evalitems.indices, id: \.self){index in
+                    if newAttendlikeEvalItems.count == attendlikeEvalItems.count{
+                        ForEach(attendlikeEvalItems.indices, id: \.self){index in
                             VStack{
                                 HStack{
-                                    Text(evalitems[index].name)
+                                    Text(attendlikeEvalItems[index].name)
                                     Spacer()
                                     VStack{
                                         Button(action: {
-                                            if evalitems[index].evalTime > newEvalItems[index].missedTime{
-                                                newEvalItems[index].missedTime += 1
+                                            if attendlikeEvalItems[index].evalTime > newAttendlikeEvalItems[index].gotTime{
+                                                newAttendlikeEvalItems[index].gotTime += 1
                                             }
 
-                                            let data = try? NSKeyedArchiver.archivedData(withRootObject: newEvalItems, requiringSecureCoding: false)
-                                            selectedclass.evalItems = data
+                                            let data = try? NSKeyedArchiver.archivedData(withRootObject: newAttendlikeEvalItems, requiringSecureCoding: false)
+                                            selectedclass.attendlikeEvalItems = data
                                             try? viewContext.save()
                                         }, label: {
                                             Image(systemName: "play.fill")
@@ -73,16 +83,16 @@ struct MissedTimeSetting: View {
                                         .foregroundColor(.red)
                                         .padding(.top)
                                         
-                                        Text(String(format: "%02d", newEvalItems[index].missedTime) + "/" + String(format: "%02d", evalitems[index].evalTime))
+                                        Text(String(format: "%02d", newAttendlikeEvalItems[index].gotTime) + "/" + String(format: "%02d", attendlikeEvalItems[index].evalTime))
                                             .font(.title)
                                         
                                         Button(action: {
-                                            if newEvalItems[index].missedTime > 0{
-                                                newEvalItems[index].missedTime -= 1
+                                            if newAttendlikeEvalItems[index].gotTime > 0{
+                                                newAttendlikeEvalItems[index].gotTime -= 1
                                             }
                                             
-                                            let data = try? NSKeyedArchiver.archivedData(withRootObject: newEvalItems, requiringSecureCoding: false)
-                                            selectedclass.evalItems = data
+                                            let data = try? NSKeyedArchiver.archivedData(withRootObject: newAttendlikeEvalItems, requiringSecureCoding: false)
+                                            selectedclass.attendlikeEvalItems = data
                                             try? viewContext.save()
                                         }, label: {
                                             Image(systemName: "play.fill")
@@ -94,28 +104,89 @@ struct MissedTimeSetting: View {
                                     Text("回")
                                         .font(.title)
                                 }
-                                .frame(width: screenWidth * 0.8, height: screenHeight * 0.1)
-                                if index != evalitems.count - 1{
+                                .frame(width: screenWidth * 0.8, height: screenHeight * 0.12)
+                                if index != attendlikeEvalItems.count - 1 || testlikeEvalItems != []{
                                     Divider()
                                 }
                             }
-                            
                             .fixedSize()
                             }
                     }
+                    
+                    if newTestlikeEvalItems.count == testlikeEvalItems.count{
+                        ForEach(testlikeEvalItems.indices, id: \.self){index in
+                            Button(action: {
+                                if currentTestlikeEvalItemIndex == index{
+                                    currentTestlikeEvalItemIndex = -1
+                                }else{
+                                    currentTestlikeEvalItemIndex = index
+                                }
+                            }, label: {
+                                HStack{
+                                    Text(testlikeEvalItems[index].name)
+                                    Spacer()
+                                    Text(currentTestlikeEvalItemIndex == index ? "↑" : "↓")
+                                }
+                                .frame(width: screenWidth * 0.8, height: screenHeight * 0.1)
+                            })
+                            if currentTestlikeEvalItemIndex == index {
+                                VStack{
+                                    ForEach(newTestlikeEvalItems[index].gotRatios.indices, id: \.self){mindex in
+                                        HStack(){
+                                            Spacer()
+                                            VStack{
+                                                HStack{
+                                                    Text("\(mindex + 1)回目：")
+                                                    Spacer()
+                                                    TextField("100", value: $newTestlikeEvalItems[index].gotRatios[mindex], formatter: NumberFormatter())
+                                                        .frame(width: screenWidth * 0.25)
+                                                    .keyboardType(.numberPad)
+                                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                                    .multilineTextAlignment(TextAlignment.center)
+                                                    Text("％")
+                                                }
+                                                if mindex != newTestlikeEvalItems[index].gotRatios.endIndex - 1{
+                                                    Divider()
+                                            }
+                                            }
+                                            .frame(width: screenWidth * 0.7)
+                                        }
+                                        .frame(width: screenWidth * 0.8)
+                                        
+                                    }
+                                }
+                                .frame(width: screenWidth * 0.8)
+                                .padding()
+                                .fixedSize()
+                                
+                                HStack{
+                                    Spacer()
+                                    Button(action: {
+                                        let data = try? NSKeyedArchiver.archivedData(withRootObject: newTestlikeEvalItems, requiringSecureCoding: false)
+                                        selectedclass.testlikeEvalItems = data
+                                        try? viewContext.save()
+                                        currentTestlikeEvalItemIndex = -1
+                                    }, label: {
+                                        Text("保存")
+                                    })
+                                }
+                                .frame(width: screenWidth * 0.8)
+                            }
+                            if index != testlikeEvalItems.endIndex - 1 {
+                                Divider()
+                            }
+                        }
+                }
                 }
                 .frame(width: screenWidth * 0.85)
-                .padding()
-                .background{
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(.gray, lineWidth: 2)
-                }
+                
             }
             .frame(width: screenWidth * 0.95)
         }
         
         .onAppear{
-            newEvalItems = evalitems
+            newAttendlikeEvalItems = attendlikeEvalItems
+            newTestlikeEvalItems = testlikeEvalItems
         }
     }
 }

@@ -21,10 +21,10 @@ struct PersistenceController {
         exclassdata.credit = 2
         exclassdata.time = 1
         exclassdata.day = day.monday.rawValue
-        exclassdata.evalItems = try? NSKeyedArchiver.archivedData(withRootObject: [
-            EvalItem(newname: "出席", newratio: 60, newtime: 15),
-            EvalItem(newname: "期末テスト", newratio: 30, newtime: 1),
-            EvalItem(newname: "定期テスト", newratio: 10, newtime: 3),
+        exclassdata.attendlikeEvalItems = try? NSKeyedArchiver.archivedData(withRootObject: [
+            AttendlikeEvalItem(newname: "出席", newratio: 60, newtime: 15),
+            AttendlikeEvalItem(newname: "期末テスト", newratio: 30, newtime: 1),
+            AttendlikeEvalItem(newname: "定期テスト", newratio: 10, newtime: 3),
                                                                                  ],
                                                                  requiringSecureCoding: false)
         

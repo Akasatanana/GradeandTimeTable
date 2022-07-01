@@ -12,10 +12,10 @@ struct EvaluatedCard: View {
     @ObservedObject var classData: ClassData
     var body: some View {
         let missedgradient = Gradient(stops: [
-            .init(color: .gray, location: 0.0),
-            .init(color: .gray, location: CalcMissedRatio(classdata: classData) / 100.0),
-            .init(color: Color(classData.unwrappedColor), location: CalcMissedRatio(classdata: classData) / 100.0),
-            .init(color: Color(classData.unwrappedColor), location: 1.0)
+            .init(color: Color(classData.unwrappedColor), location: 0.0),
+            .init(color: Color(classData.unwrappedColor), location: CalcgotRatio(classdata: classData) / 100.0),
+            .init(color: .gray, location: CalcgotRatio(classdata: classData) / 100.0),
+            .init(color: .gray, location: 1.0)
         ])
         VStack(){
             VStack(alignment: .leading){
@@ -39,8 +39,20 @@ struct EvaluatedCard: View {
                     Spacer()
                     VStack(alignment: .trailing){
                         Spacer()
-                        if let data = classData.evalItems{
-                            let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
+                        if let data = classData.attendlikeEvalItems{
+                            let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [AttendlikeEvalItem]
+                            
+                            ForEach(evalitems, id: \.self){evalitem in
+                                Text(evalitem.name + "：\(Int(evalitem.evalRatio))％")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.1)
+                            }
+                        }
+                        
+                        if let data = classData.testlikeEvalItems{
+                            let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [TestlikeEvalItem]
                             
                             ForEach(evalitems, id: \.self){evalitem in
                                 Text(evalitem.name + "：\(Int(evalitem.evalRatio))％")
@@ -57,7 +69,7 @@ struct EvaluatedCard: View {
             
         }
         .padding()
-        .background(LinearGradient(gradient: missedgradient, startPoint: .top, endPoint: .bottom))
+        .background(LinearGradient(gradient: missedgradient, startPoint: .bottom, endPoint: .top))
         .cornerRadius(8)
         .clipped()
         .shadow(color: .gray.opacity(0.7), radius: 10)

@@ -11,12 +11,19 @@ struct EvalItemSetting: View {
     @OptionalObservedObject var selectedclass: ClassData?
     
     @Environment(\.presentationMode) var presentationMode
-    @State var newEvalItems: [EvalItem] = []
+    @State var newAttendlikeEvalItems: [AttendlikeEvalItem] = []
+    @State var newTestlikeEvalItems: [TestlikeEvalItem] = []
+    
     @State var newName: String = ""
     @State var isEditingName: Bool = false
+    
     @State var newRatio: Double = 60
     @State var isEditingRatio: Bool = false
+    
     @State var newTime: Int = 1
+    
+    @State var isAttendlike : Bool = true
+    
     @State var notHaveEnoughItems: Bool = false
     @State var noEvalItems: Bool = false
     @State var noName: Bool = false
@@ -29,7 +36,10 @@ struct EvalItemSetting: View {
     
     var sumOfRatio: Double {
         var res :Double = 0
-        newEvalItems.forEach{
+        newAttendlikeEvalItems.forEach{
+            res += $0.evalRatio
+        }
+        newTestlikeEvalItems.forEach{
             res += $0.evalRatio
         }
         return res
@@ -85,12 +95,22 @@ struct EvalItemSetting: View {
                     Stepper("評価回数：\(newTime)", value: $newTime, in: 1 ... 20)
                         .frame(width: screenWidth * 0.75,
                                height: screenHeight * 0.03)
+                    Divider()
+                    
+                    Picker("評価形式",selection: $isAttendlike){
+                        Text("出席形式").tag(true)
+                        Text("テスト形式").tag(false)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .frame(width: screenWidth * 0.75,
+                           height: screenHeight * 0.03)
                 }
                 .fixedSize()
                 .padding()
                 .background{
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(.gray, lineWidth: 2)
+                    
                 }
                 
                 Button(action: {
@@ -99,8 +119,15 @@ struct EvalItemSetting: View {
                     }else if sumOfRatio + newRatio > 100{
                         notHaveEnoughItems = true
                     }else{
-                        let newitem = EvalItem(newname: newName, newratio: newRatio, newtime: newTime)
-                        newEvalItems.append(newitem)
+                        if isAttendlike{
+                            let newitem = AttendlikeEvalItem(newname: newName, newratio: newRatio, newtime: newTime)
+                            newitem.gotTime = newTime
+                            newAttendlikeEvalItems.append(newitem)
+                        }else{
+                            let newitem = TestlikeEvalItem(newname: newName, newratio: newRatio, newtime: newTime)
+                            newitem.gotRatios = Array(repeating: 100, count: newTime)
+                            newTestlikeEvalItems.append(newitem)
+                        }
                     }
                 }){
                     RoundedRectangle(cornerRadius: 10)
@@ -136,8 +163,8 @@ struct EvalItemSetting: View {
                 }
 
                 VStack{
-                    if newEvalItems != []{
-                        ForEach(newEvalItems, id: \.self){evalitem in
+                    if newAttendlikeEvalItems != [] || newTestlikeEvalItems != []{
+                        ForEach(newAttendlikeEvalItems, id: \.self){evalitem in
                             HStack{
                                 Text(evalitem.name)
                                 Spacer()
@@ -148,9 +175,26 @@ struct EvalItemSetting: View {
                             }
                             .frame(width: screenWidth * 0.75,
                                    height: screenHeight * 0.06)
-                            if evalitem != newEvalItems.last{
+                            if evalitem != newAttendlikeEvalItems.last || newTestlikeEvalItems != []{
                                 Divider()
                             }
+                        }
+                        
+                        ForEach(newTestlikeEvalItems, id: \.self){evalitem in
+                            HStack{
+                                Text(evalitem.name)
+                                Spacer()
+                                VStack(alignment: .leading){
+                                    Text("評価割合：\(Int(evalitem.evalRatio))％")
+                                    Text("評価回数：\(evalitem.evalTime)回")
+                                }
+                            }
+                            .frame(width: screenWidth * 0.75,
+                                   height: screenHeight * 0.06)
+                            if evalitem != newTestlikeEvalItems.last{
+                                Divider()
+                            }
+                            
                         }
                     }else{
                         Text("評価項目が未設定です．")
@@ -195,17 +239,26 @@ struct EvalItemSetting: View {
                         if sumOfRatio == 100{
                             if let selectedclass = selectedclass {
                                 do{
-                                    if let data: Data? = try NSKeyedArchiver.archivedData(withRootObject: newEvalItems, requiringSecureCoding: false) as Data{
-                                        selectedclass.evalItems = data
+                                    if let data: Data? = try NSKeyedArchiver.archivedData(withRootObject: newAttendlikeEvalItems, requiringSecureCoding: false) as Data{
+                                        selectedclass.attendlikeEvalItems = data
                                     }else{
-                                        selectedclass.evalItems = nil
+                                        selectedclass.attendlikeEvalItems = nil
                                     }
                                 }catch let errror{
                                     print(errror.localizedDescription)
                                 }
-                            }else{
                                 
+                                do{
+                                    if let data: Data? = try NSKeyedArchiver.archivedData(withRootObject: newTestlikeEvalItems, requiringSecureCoding: false) as Data{
+                                        selectedclass.testlikeEvalItems = data
+                                    }else{
+                                        selectedclass.testlikeEvalItems = nil
+                                    }
+                                }catch let errror{
+                                    print(errror.localizedDescription)
+                                }
                             }
+                            
                             try? viewContext.save()
                             presentationMode.wrappedValue.dismiss()
                         }else{

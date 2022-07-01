@@ -98,11 +98,17 @@ enum classColor: String{
                                     gray]
 }
 
-class EvalItem: NSObject, NSCoding, Codable{
+protocol EvalItem {
+    var name: String {get set}
+    var evalRatio: Double {get set}
+    var evalTime: Int {get set}
+}
+
+class AttendlikeEvalItem: NSObject, NSCoding, Codable{
     var name: String
     var evalRatio: Double
     var evalTime: Int
-    var missedTime: Int = 0
+    var gotTime: Int = 0
     init(newname: String, newratio: Double, newtime: Int){
         self.name = newname
         self.evalRatio = newratio
@@ -114,16 +120,45 @@ class EvalItem: NSObject, NSCoding, Codable{
         self.name = (coder.decodeObject(forKey: "name") as? String) ?? ""
         self.evalRatio = coder.decodeDouble(forKey: "evalRatio")
         self.evalTime = coder.decodeInteger(forKey: "evalTime")
-        self.missedTime = coder.decodeInteger(forKey: "missedTime")
+        self.gotTime = coder.decodeInteger(forKey: "missedTime")
     }
     
     func encode(with coder: NSCoder) {
         coder.encode(self.name, forKey: "name")
         coder.encode(self.evalRatio, forKey: "evalRatio")
         coder.encode(self.evalTime, forKey: "evalTime")
-        coder.encode(self.missedTime, forKey: "missedTime")
+        coder.encode(self.gotTime, forKey: "missedTime")
     }
 }
+
+class TestlikeEvalItem: NSObject, NSCoding, Codable{
+    var name: String
+    var evalRatio: Double
+    var evalTime: Int
+    var gotRatios: [Int] = []
+    init(newname: String, newratio: Double, newtime: Int){
+        self.name = newname
+        self.evalRatio = newratio
+        self.evalTime = newtime
+    }
+    
+    
+    required init?(coder: NSCoder){
+        self.name = (coder.decodeObject(forKey: "name") as? String) ?? ""
+        self.evalRatio = coder.decodeDouble(forKey: "evalRatio")
+        self.evalTime = coder.decodeInteger(forKey: "evalTime")
+        self.gotRatios = (coder.decodeObject(forKey: "missedRatios") as? [Int]) ?? []
+    }
+    
+    func encode(with coder: NSCoder) {
+        coder.encode(self.name, forKey: "name")
+        coder.encode(self.evalRatio, forKey: "evalRatio")
+        coder.encode(self.evalTime, forKey: "evalTime")
+        coder.encode(self.gotRatios, forKey: "missedRatios")
+    }
+}
+
+
 
 /// A wrapper of the underlying optional observable object
 /// that will emit a notification when the optional state or the observable object changes.
@@ -189,17 +224,24 @@ public struct OptionalObservedObject<ObjectType: ObservableObject>: DynamicPrope
     }
 }
 
-func CalcMissedRatio(classdata: ClassData) -> Double{
-    var missedRatio: Double = 0.0
-    if let data = classdata.evalItems{
-        let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
+func CalcgotRatio(classdata: ClassData) -> Double{
+    var gotRatio: Double = 0.0
+    if let data = classdata.attendlikeEvalItems{
+        let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [AttendlikeEvalItem]
         for item in evalitems{
-            missedRatio += (Double(item.evalRatio) / Double(item.evalTime)) * Double(item.missedTime)
+            gotRatio += (Double(item.evalRatio) / Double(item.evalTime)) * Double(item.gotTime)
         }
-        return missedRatio
-    }else{
-        return 0
     }
+    
+    if let data = classdata.testlikeEvalItems{
+        let evalitems = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [TestlikeEvalItem]
+        for item in evalitems{
+            for ratio in item.gotRatios{
+                gotRatio += (Double(item.evalRatio) / Double(item.evalTime)) * Double(ratio / 100)
+            }
+        }
+    }
+    return gotRatio
 }
 
 enum grade: Int{
@@ -217,7 +259,7 @@ enum grade: Int{
 }
 
 func JudgeGrade(classdata: ClassData) -> String?{
-    switch  (100 - CalcMissedRatio(classdata: classdata)){
+    switch  CalcgotRatio(classdata: classdata){
     case Double(grade.D.rawValue) ..< Double(grade.C.rawValue):
         return "D"
     case Double(grade.C.rawValue) ..< Double(grade.B.rawValue):
@@ -234,7 +276,7 @@ func JudgeGrade(classdata: ClassData) -> String?{
 }
 
 func JudgeGradePoint(classdata: ClassData) -> Double?{
-    switch  (100 - CalcMissedRatio(classdata: classdata)){
+    switch  CalcgotRatio(classdata: classdata){
     case Double(grade.D.rawValue) ..< Double(grade.C.rawValue):
         return 0.0
     case Double(grade.C.rawValue) ..< Double(grade.B.rawValue):

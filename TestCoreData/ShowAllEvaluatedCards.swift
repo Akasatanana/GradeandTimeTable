@@ -17,7 +17,8 @@ struct ShowAllEvaluatedCards: View {
     
     var evaluatedClasses: [ClassData] {
         return classes.filter({
-            $0.evalItems != nil
+            $0.attendlikeEvalItems != nil ||
+            $0.testlikeEvalItems != nil
         })
     }
     

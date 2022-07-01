@@ -18,7 +18,8 @@ extension ClassData {
 
     @NSManaged public var color: String?
     @NSManaged public var day: String?
-    @NSManaged public var evalItems: Data?
+    @NSManaged public var attendlikeEvalItems: Data?
+    @NSManaged public var testlikeEvalItems: Data?
     @NSManaged public var name: String?
     @NSManaged public var room: String?
     @NSManaged public var time: NSNumber?

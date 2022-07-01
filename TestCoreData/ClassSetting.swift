@@ -39,9 +39,18 @@ struct ClassSetting: View {
     //navigationlinkにバインドする，
     @State var showNoClassAlart: Bool = false
 
-    var evalItems: [EvalItem]? {
-        if let data = selectedclass?.evalItems{
-            let evalitem = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [EvalItem]
+    var attendlikeEvalItems: [AttendlikeEvalItem]? {
+        if let data = selectedclass?.attendlikeEvalItems {
+            let evalitem = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [AttendlikeEvalItem]
+            return evalitem
+        }else{
+            return nil
+        }
+    }
+    
+    var testlikeEvalItems: [TestlikeEvalItem]? {
+        if let data = selectedclass?.testlikeEvalItems {
+            let evalitem = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as! [TestlikeEvalItem]
             return evalitem
         }else{
             return nil
@@ -201,33 +210,47 @@ struct ClassSetting: View {
                             .foregroundColor(.gray)
                         Spacer()
                     }
-                    VStack{
-                        if let evalitems = evalItems {
-                            ForEach(evalitems, id: \.self){evalitem in
-                                HStack{
-                                    Text(evalitem.name)
-                                    Spacer()
-                                    Text("\(Int(evalitem.evalRatio))％")
-                                }
-                                .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
-                                if evalitem != evalitems.last{
-                                    Divider()
+                    if attendlikeEvalItems != nil || testlikeEvalItems != nil{
+                        VStack{
+                            if let evalitems = attendlikeEvalItems {
+                                ForEach(evalitems, id: \.self){evalitem in
+                                    HStack{
+                                        Text(evalitem.name)
+                                        Spacer()
+                                        Text("\(Int(evalitem.evalRatio))％")
+                                    }
+                                    .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                                    if evalitem != evalitems.last || testlikeEvalItems != []{
+                                        Divider()
+                                    }
                                 }
                             }
-                        }else{
-                            Text("評価項目無し")
-                                .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                            
+                            if let evalitems = testlikeEvalItems {
+                                ForEach(evalitems, id: \.self){evalitem in
+                                    HStack{
+                                        Text(evalitem.name)
+                                        Spacer()
+                                        Text("\(Int(evalitem.evalRatio))％")
+                                    }
+                                    .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                                    if evalitem != evalitems.last{
+                                        Divider()
+                                    }
                                 }
-                    }
-                    .fixedSize()
-                    .padding()
-                    .background{
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(.gray, lineWidth: 2)
-                            .background(.white)
-                    }
-
-                                
+                            }
+                        }
+                        .fixedSize()
+                        .padding()
+                        .background{
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(.gray, lineWidth: 2)
+                                .background(.white)
+                        }
+                    }else{
+                        Text("評価項目無し")
+                            .frame(width: screenWidth * 0.8 , height: screenHeight * 0.05)
+                            }
                     NavigationLink(destination: EvalItemSetting(selectedclass: selectedclass),
                                    isActive: $goEvalSetting,
                                    label: {EmptyView()})
@@ -253,7 +276,8 @@ struct ClassSetting: View {
                     .alert("確認", isPresented: $willDeleteEvalItems){
                         Button("削除", role: .destructive){
                             if let selectedclass = selectedclass{
-                                selectedclass.evalItems = nil
+                                selectedclass.attendlikeEvalItems = nil
+                                selectedclass.testlikeEvalItems = nil
                             }
                             try? viewContext.save()
                         }
