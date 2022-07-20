@@ -19,3 +19,6 @@
 <img src="https://user-images.githubusercontent.com/103174345/180023674-ff4e8b63-3acf-4a21-842d-ef20bd32a6e8.png" width="240px">
 
 ### 得点の設定
+
+
+<img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">
