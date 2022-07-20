@@ -19,6 +19,10 @@
 <img src="https://user-images.githubusercontent.com/103174345/180023674-ff4e8b63-3acf-4a21-842d-ef20bd32a6e8.png" width="240px">
 
 ### 得点の設定
+評価項目を登録した授業は，評価画面にカードが追加されます．
 
+カードをタップすると，各評価項目の得点が設定できます．
 
-<img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">
+GPA平均の算出は，評価項目を設定した授業のみについて計算されます．
+
+<img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">　
