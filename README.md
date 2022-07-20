@@ -1,5 +1,8 @@
 # 時間割＆GPA
 時間割にGPAの自動計算を行う機能を追加したアプリです．
+
+[App Storeにて無料で公開しています．](https://apps.apple.com/jp/app/%E6%99%82%E9%96%93%E5%89%B2-gpa%E8%A8%88%E7%AE%97/id1633208820)
+
 ## 使い方
 ### 授業の登録
 時間割ページで授業のコマをタップすると，授業の設定ができます．
@@ -26,3 +29,4 @@
 GPA平均の算出は，評価項目を設定した授業のみについて計算されます．
 
 <img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">　<img src="https://user-images.githubusercontent.com/103174345/180025769-46c6c3be-19b3-4082-a2e0-8eb6c0b321bf.png" width="240px">
+
