@@ -25,4 +25,4 @@
 
 GPA平均の算出は，評価項目を設定した授業のみについて計算されます．
 
-<img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">　<img src="[https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png](https://user-images.githubusercontent.com/103174345/180025769-46c6c3be-19b3-4082-a2e0-8eb6c0b321bf.png)" width="240px">
+<img src="https://user-images.githubusercontent.com/103174345/180025001-f80d4538-3b52-4003-b80d-bf0e08a11569.png" width="240px">　<img src="https://user-images.githubusercontent.com/103174345/180025769-46c6c3be-19b3-4082-a2e0-8eb6c0b321bf.png" width="240px">
